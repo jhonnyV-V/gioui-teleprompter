@@ -1,0 +1,8 @@
+Events are the heart of this application.
+In this chapter we listen for them and take action.
+In a later chapter we will look at how they are created.
+
+Agreed, that’s a strange order.
+However, it is the natural order for the code, and therefore I think it makes the most sense to explain it that way as well.
+
+We will listen for two types of events, those from the main application per se, and those from an area of interest we define as a so-called Event Area.
