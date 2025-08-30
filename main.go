@@ -7,6 +7,8 @@ import (
 	"strings"
 
 	"gioui.org/app"
+	"gioui.org/io/key"
+	"gioui.org/io/pointer"
 	"gioui.org/op"
 	"gioui.org/unit"
 )
@@ -72,8 +74,91 @@ func loop(window *app.Window) error {
 		event := window.Event()
 		switch evenType := event.(type) {
 		case app.FrameEvent:
+
 			context := app.NewContext(&op, evenType)
-			context.Dp(unit.Dp(100))
+			contextEvent, _ := context.Event()
+			var stepSize unit.Dp = 1
+
+			switch contextEventType := contextEvent.(type) {
+			case key.EditEvent:
+				if contextEventType.Text == "+" {
+					fontSize += unit.Sp(stepSize)
+				}
+				if contextEventType.Text == "-" {
+					fontSize += unit.Sp(stepSize)
+				}
+
+			case key.Event:
+				if contextEventType.State != key.Press {
+					break
+				}
+
+				if contextEventType.Modifiers == key.ModShift {
+					stepSize +=5
+				}
+				
+				if contextEventType.Name == "Space" {
+					autoScroll = !autoScroll
+					if autoScrollSpeed == 0 {
+						autoScroll = true
+						autoScrollSpeed++
+					}
+				}
+
+				if contextEventType.Name == "K" {
+					scrollY = scrollY - (stepSize * 4)
+					if scrollY < 0 {
+						scrollY = 0
+					}
+				}
+
+				if contextEventType.Name == "J" {
+					scrollY = scrollY + (stepSize * 4)
+				}
+				
+				if contextEventType.Name == "F" {
+					autoScroll = true
+					autoScrollSpeed++
+				}
+
+				if contextEventType.Name == "F" {
+					if autoScrollSpeed > 0 {
+						autoScrollSpeed--
+					} else {
+						autoScroll = false
+					}
+				}
+				
+				if contextEventType.Name == "W" {
+					textWitdh = textWitdh + (stepSize* 10)
+				}
+
+				if contextEventType.Name == "N" {
+					textWitdh = textWitdh - (stepSize* 10)
+				}
+
+				if contextEventType.Name == "U" {
+					focusBarY = focusBarY - stepSize
+				}
+
+				if contextEventType.Name == "D" {
+					focusBarY = focusBarY - stepSize
+				}
+				
+			case pointer.Event:
+				if contextEventType.Kind != pointer.Scroll {
+					break
+				}
+
+				if contextEventType.Modifiers == key.ModShift {
+					stepSize = 3
+				}
+
+				scrollY = scrollY + (unit.Dp(contextEventType.Scroll.Y) * stepSize)
+				if scrollY < 0 {
+					scrollY = 0
+				}
+			}
 
 		case app.DestroyEvent:
 			return evenType.Err
